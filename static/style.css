@@ -1,0 +1,40 @@
+@import url('https://fonts.googleapis.com/css2?family=Chivo:wght@400;700&display=swap');
+
+h1,h2, body{
+  font-family: 'Chivo', sans-serif !important;
+}
+
+.is_loading{
+  min-height: 200px;
+}
+.is_loading:after, .is_loading_no_height:after{
+
+    /* min-height: 220px; */
+    z-index: 1;
+    content: "";
+    width: 100%;
+    height: 100%;
+    background: rgb(255 255 255 / 66%);
+    top: 0;
+    right: 0;
+    position: absolute;
+    display: inline-block;
+}
+ 
+.is_loading:before, .is_loading_no_height:before{
+    z-index: 2;
+    content: "";
+    width: 100%;
+    height: 100%;
+    background: url("/loader-boss.gif")    /* image */
+     center 25% / 20px 20px /* position / size */
+     no-repeat;
+    top: 0;
+    right: 0;
+    position: absolute;
+    display: inline-block;
+}
+
+.wrapper {
+    min-height: 600px;
+}
