@@ -40,7 +40,11 @@
                   <div class="card border-success mb-3">
                     <div class="card-header">{{ directory.name }}
 
-                        <b-dropdown id="dropdown-left" text="" variant="warning" class="directory-action m-2">
+                        <b-dropdown split
+    split-variant="outline-success"
+    variant="success"
+    text="Action"
+    class="m-2">
                           <b-dropdown-item href="#" @click.prevent="deleteFolder(directory.id)">Delete</b-dropdown-item>
                           <b-dropdown-item href="#" @click.prevent="renameFolder(directory.id)">Rename</b-dropdown-item>
                         </b-dropdown>
