@@ -38,3 +38,78 @@ h1,h2, body{
 .wrapper {
     min-height: 600px;
 }
+
+/** DIRECTORIES STYLES **/
+
+.directory-area {
+    width: 100%;
+}
+
+.directory-box {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.directory-single{
+    width: calc(25% - 10px);
+    margin-right: 10px;
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+ul.manager-action-icons {
+    list-style: none;
+    display: flex;
+    margin: 0;
+    padding: 0;
+}
+
+ul.manager-action-icons li{
+    cursor:pointer;
+    width:100px;
+    text-align:center;
+    border: 1px solid #89a745;
+    padding:20px;
+    margin-right: 10px;
+    border-radius:5px;
+}
+
+ul.manager-action-icons li i{
+    display:block;
+}
+
+/*.manager-action-details {
+    width: 100%;
+    background: #24653369;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}*/
+
+.folder-add-area {
+}
+
+.folder-add-area input{
+    color: #000;
+    font-size: 25px;
+    border:1px solid #89a745;
+    border-radius:5px;
+    width: 100%;
+    margin-top: 10px;
+    padding: 0 10px;
+}
+
+::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+  color: #89a745;
+  opacity: 0.5; /* Firefox */
+}
+
+:-ms-input-placeholder { /* Internet Explorer 10-11 */
+  color: #89a745;
+}
+
+::-ms-input-placeholder { /* Microsoft Edge */
+  color: #89a745;
+}
