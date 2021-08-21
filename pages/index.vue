@@ -14,9 +14,9 @@
               <li @click="goHome()"><i style="font-size:40px;" class="icon-home"></i> Home</li>
               <li v-if="root == false" @click.prevent="backDirectory()"><i style="font-size:40px;" class="icon-arrow-left"></i> Back</li>
               <li @click="openOrCloseFolderActionArea()"><i class="icon-plus"></i><i class="icon-folder-close-alt"></i> Folder</li>
-              <li @click="openOrCloseMediaActionArea()"><i class="icon-plus"></i><i class="icon-picture"></i> Media</li>
+              <li :class="{'disable-icon' : !currentDirectory}" @click="openOrCloseMediaActionArea()" ><i class="icon-plus"></i><i class="icon-picture"></i> Media</li>
               <li @click="reloadDirectory()"><i style="font-size:40px;" class="icon-refresh"></i> Reload</li>
-              <li class="paste-action-icon" @click="pasteFolder()" :class="{'paste-active' : (copyId || cutId)}"><i style="font-size:40px;" class="icon-paste"></i> Paste</li>
+              <li class="disable-icon" @click="pasteFolder()" :class="{'paste-active' : (copyId || cutId)}"><i style="font-size:40px;" class="icon-paste"></i> Paste</li>
               <li><i class="icon-plus"></i> Sort</li>
             </ul>
           </div>
@@ -84,6 +84,8 @@
                                     text="Action"
                                     class="m-2">
                           <b-dropdown-item :href="media.media_src" download>Download</b-dropdown-item>
+                          <b-dropdown-item href="#" @click.prevent="copyMedia(media.id)">Copy</b-dropdown-item>
+                          <b-dropdown-item href="#" @click.prevent="cutMedia(media.id)">Cut</b-dropdown-item>
                           <b-dropdown-item href="#" @click.prevent="deleteMedia(media.id)">Delete</b-dropdown-item>
                           <b-dropdown-item href="#" @click.prevent="renameMedia(media.id, media.name)">Rename</b-dropdown-item>
                         </b-dropdown>
@@ -221,6 +223,13 @@
         this.mediaActionArea = false;
       },
       openOrCloseMediaActionArea(){
+
+        if(!this.currentDirectory){
+          this.makeToast('warning', 'Error', 'You can not upload media from root directory. Upload to inner folder');
+          this.mediaActionArea = false;
+          this.folderActionArea = false;
+          return;
+        }
         this.mediaActionArea = !this.mediaActionArea;
         this.folderActionArea = false;
       },

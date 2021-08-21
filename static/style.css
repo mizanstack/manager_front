@@ -80,12 +80,13 @@ ul.manager-action-icons li i{
     display:block;
 }
 
-ul.manager-action-icons li.paste-action-icon {
+ul.manager-action-icons li.disable-icon {
     border: 1px solid #ccc;
     color: #e5e5e5;
 }
 
-ul.manager-action-icons li.paste-action-icon.paste-active {
+ul.manager-action-icons li.paste-active {
+  border: 1px solid #28a745;
     color: #28a745;
 }
 
