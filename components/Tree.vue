@@ -13,7 +13,6 @@
 			selectTree(directoryId){
 				EventBus.$emit('selectTree', directoryId);
 				EventBus.$emit('hideSidebar');
-				this.$root.$emit('bv::hide::modal', 'sidebar-backdrop')
 			}
 		}
 	}

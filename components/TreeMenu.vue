@@ -1,11 +1,12 @@
 <template>
-  <div class="tree-manage-area">
+  <div class="tree-manage-area" :class="{'is_loading' : loading}">
     <div class="tree" v-if="treeMenu">
         <tree :menuNode="treeMenu.data"></tree>
     </div>
   </div><!--tree manage area-->
 </template>
 <script>
+  import { EventBus } from '@/plugins/global'
   export default {
     data(){
       return {
@@ -27,6 +28,10 @@
     },
     mounted(){
       this.fetchTreeMenu();
+
+      EventBus.$on('reloadTreeMenu', () => {
+        this.fetchTreeMenu();
+      })
     },
     computed : {
     }

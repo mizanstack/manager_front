@@ -23,7 +23,7 @@
 
           <div class="manager-action-details">
             <div class="folder-add-area" v-if="folderActionArea">
-              <input type="text" placeholder="Input Folder Name" v-model="folderNameText">
+              <input type="text" @keydown.enter.exact.prevent @keyup.enter.exact="saveOrUpdateFolder()" placeholder="Input Folder Name" v-model="folderNameText">
 
               <template v-if="updateFolderId">
                 <button class="btn" @click="updateFolder()">{{ folderSaveButtonName }}</button>
@@ -125,12 +125,26 @@
         mediaActionArea : false,
         attachment : null,
         fileErrors : [],
+
+
+        copyId : null,
+        cutID : null,
+        pasteId : null,
+
+        
       }
     },
     methods : {
       onFileChange(event){
           this.attachment = event.target.files[0];
           this.saveFile();
+      },
+      saveOrUpdateFolder(){
+        if(this.updateFolderId){
+          this.updateFolder();
+        } else {
+          this.saveFolder();
+        }
       },
       saveFile(){
             var self = this;
@@ -191,6 +205,8 @@
         } else{
           this.fetchRootData();
         }
+
+        EventBus.$emit('reloadTreeMenu');
       },
       backDirectory(){
         if(this.currentDirectory.parent_id){
@@ -217,6 +233,10 @@
       cutFolder(id){},
       saveFolder(){
         var self = this;
+        if(self.folderNameText == ''){
+          self.makeToast('warning', 'Error', 'Folder name empty!');
+          return;
+        }
         this.$axios.post('/save-folder', {
           parentId : self.currentDirectory ? self.currentDirectory.id : null,
           name : self.folderNameText
@@ -276,8 +296,14 @@
         this.folderNameText = folderName;
       },
       updateFolder(){
+
+        if(self.folderNameText == ''){
+          self.makeToast('warning', 'Error', 'Folder name empty!');
+          return;
+        }
+
         if(!this.updateFolderId){
-          alert('You can\'t update the folder');
+          self.makeToast('warning', 'Error', 'You can\'t update the folder');
           return;
         }
         var self = this;
