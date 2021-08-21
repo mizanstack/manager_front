@@ -16,7 +16,7 @@
               <li @click="openOrCloseFolderActionArea()"><i class="icon-plus"></i><i class="icon-folder-close-alt"></i> Folder</li>
               <li @click="openOrCloseMediaActionArea()"><i class="icon-plus"></i><i class="icon-picture"></i> Media</li>
               <li @click="reloadDirectory()"><i style="font-size:40px;" class="icon-refresh"></i> Reload</li>
-              <li @click="pasteFolder()"><i style="font-size:40px;" class="icon-paste"></i> Paste</li>
+              <li class="paste-action-icon" @click="pasteFolder()" :class="{'paste-active' : (copyId || cutId)}"><i style="font-size:40px;" class="icon-paste"></i> Paste</li>
               <li><i class="icon-plus"></i> Sort</li>
             </ul>
           </div>
@@ -128,8 +128,7 @@
 
 
         copyId : null,
-        cutID : null,
-        pasteId : null,
+        cutId : null,
 
         
       }
@@ -150,7 +149,7 @@
             var self = this;
             var prepareData = new FormData();
             prepareData.append('attachment', this.attachment);
-            prepareData.append('directory_id', this.currentDirectory ? this.currentDirectory.id : null);
+            prepareData.append('directory_id', this.currentDirectory ? this.currentDirectory.id : '');
             self.$axios.post('upload-files', prepareData).
             then((response) => {
               self.reloadDirectory();
@@ -205,7 +204,6 @@
         } else{
           this.fetchRootData();
         }
-
         EventBus.$emit('reloadTreeMenu');
       },
       backDirectory(){
@@ -229,8 +227,53 @@
       canceFolderActionArea(){
         this.closeAndResetFolderActionArea();
       },
-      copyFolder(id){},
-      cutFolder(id){},
+      copyFolder(id){
+        this.copyId = id;
+        this.cutId = null;
+      },
+      pasteFolder(){
+        var self = this;
+        if(!self.copyId && !self.cutId){
+          self.makeToast('warning', 'Error', 'Nothing to paste');
+          return;
+        }
+        self.loading = true;
+
+        var pasteMode = null;
+        var copyOrCutId = null;
+        var copyOrCutUrl = '';
+        if(self.copyId){
+          pasteMode = 'copy';
+          copyOrCutId = self.copyId;
+        } else if(self.cutId){
+          pasteMode = 'cut';
+          copyOrCutId = self.cutId;
+
+        }
+        
+
+        if(self.currentDirectory && pasteMode){
+          // sub directroy
+           copyOrCutUrl = pasteMode + '-folder/'+ copyOrCutId +'/' + self.currentDirectory.id;
+        } else {
+          // root directory
+           copyOrCutUrl = pasteMode + '-folder/'+ copyOrCutId;
+        }
+
+        self.$axios.get(copyOrCutUrl).then(( response ) => {
+          self.copyId = null;
+          self.cutId = null;
+          self.loading = false;
+          self.makeToast('success', 'Done', 'Pasted Succesfully');
+          self.reloadDirectory();
+        }).catch((error) => {
+          self.loading = false;
+        });
+      },
+      cutFolder(id){
+        this.cutId = id;
+        this.copyId = null;
+      },
       saveFolder(){
         var self = this;
         if(self.folderNameText == ''){

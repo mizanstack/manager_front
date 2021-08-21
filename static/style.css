@@ -80,6 +80,15 @@ ul.manager-action-icons li i{
     display:block;
 }
 
+ul.manager-action-icons li.paste-action-icon {
+    border: 1px solid #ccc;
+    color: #e5e5e5;
+}
+
+ul.manager-action-icons li.paste-action-icon.paste-active {
+    color: #28a745;
+}
+
 .manager-action-details {
     margin: 10px 0;
     border: 1px solid #e5e5e5;
