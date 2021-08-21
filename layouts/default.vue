@@ -11,6 +11,27 @@
                 <b-nav-item to="/" href="#">Home</b-nav-item>
               </b-navbar-nav>
 
+
+                <b-navbar-nav class="ml-auto">
+                  <template v-if="$auth.loggedIn">
+
+                    <b-nav-item-dropdown right>
+                      <template #button-content>
+                        <em>User</em>
+                      </template>
+                      <b-dropdown-item href="#" @click.prevent="$auth.logout()">Sign Out</b-dropdown-item>
+                    </b-nav-item-dropdown>
+                  </template>
+
+                  <template v-else>
+
+                    <b-navbar-nav right>
+                      <b-nav-item href="#" to="/auth/login">Login</b-nav-item>
+                    </b-navbar-nav>
+                  </template>
+
+              </b-navbar-nav>
+
               <!-- Right aligned nav items -->
               <!-- <b-navbar-nav class="ml-auto">
                 <b-nav-form>

@@ -1,6 +1,12 @@
 <template>
   <div class="container">
+
+      <!--NESTED TOGGLE TREE MENU-->
+      <tree-menu></tree-menu>
+
+
       <div class="row">
+        <b-button v-b-toggle.sidebar-backdrop>Tree Menu</b-button>
         <div class="directory-area">
           <h3>All directories</h3>
           <div class="manager-action-key"  >
@@ -98,6 +104,7 @@
 </template>
 <script>
   export default {
+    middleware: 'auth',
     data(){
       return {
         directories : null,
