@@ -1,112 +1,116 @@
 <template>
-  <div class="container">
+  <div>
+    <sidebar-toggle></sidebar-toggle>
+    <div class="container">
 
-      <!--NESTED TOGGLE TREE MENU-->
-      <sidebar-toggle></sidebar-toggle>
-
-
-      <div class="row">
+        <!--NESTED TOGGLE TREE MENU-->
         
-        <div class="directory-area">
-          <h3>All directories</h3>
-          <div class="manager-action-key"  >
-            <ul class="manager-action-icons" :class="{'is_loading' : loading}">
-              <li @click="goHome()"><i style="font-size:40px;" class="icon-home"></i> Home</li>
-              <li v-if="root == false" @click.prevent="backDirectory()"><i style="font-size:40px;" class="icon-arrow-left"></i> Back</li>
-              <li @click="openOrCloseFolderActionArea()"><i class="icon-plus"></i><i class="icon-folder-close-alt"></i> Folder</li>
-              <li :class="{'disable-icon' : !currentDirectory}" @click="openOrCloseMediaActionArea()" ><i class="icon-plus"></i><i class="icon-picture"></i> Media</li>
-              <li @click="reloadDirectory()"><i style="font-size:40px;" class="icon-refresh"></i> Reload</li>
-              <li class="disable-icon" @click="pasteFolder()" :class="{'paste-active' : (copyId || cutId)}"><i style="font-size:40px;" class="icon-paste"></i> Paste</li>
-              <li><i class="icon-plus"></i> Sort</li>
-            </ul>
-          </div>
 
-          <div class="manager-action-details">
-            <div class="folder-add-area" v-if="folderActionArea">
-              <input type="text" @keydown.enter.exact.prevent @keyup.enter.exact="saveOrUpdateFolder()" placeholder="Input Folder Name" v-model="folderNameText">
-
-              <template v-if="updateFolderId">
-                <button class="btn" @click="updateFolder()">{{ folderSaveButtonName }}</button>
-              </template>
-              <template v-if="!updateFolderId">
-                <button class="btn" @click="saveFolder()">{{ folderSaveButtonName }}</button>
-              </template>
-
-              <button class="btn" @click="canceFolderActionArea()">Cancel</button>
+        <div class="row">
+          
+          <div class="directory-area">
+            <h3>All directories</h3>
+            <div class="manager-action-key"  >
+              <ul class="manager-action-icons" :class="{'is_loading' : loading}">
+                <li @click="goHome()"><i style="font-size:40px;" class="icon-home"></i> Home</li>
+                <li v-if="root == false" @click.prevent="backDirectory()"><i style="font-size:40px;" class="icon-arrow-left"></i> Back</li>
+                <li @click="openOrCloseFolderActionArea()"><i class="icon-plus"></i><i class="icon-folder-close-alt"></i> Folder</li>
+                <li :class="{'disable-icon' : !currentDirectory}" @click="openOrCloseMediaActionArea()" ><i class="icon-plus"></i><i class="icon-picture"></i> Media</li>
+                <li @click="reloadDirectory()"><i style="font-size:40px;" class="icon-refresh"></i> Reload</li>
+                <li class="disable-icon" @click="pasteFolder()" :class="{'paste-active' : (copyId || cutId)}"><i style="font-size:40px;" class="icon-paste"></i> Paste</li>
+                <li @click="makeSort()"><i style="font-size:40px;" :class="{'icon-sort-by-attributes' : sortBy == 'asc', 'icon-sort-by-attributes-alt' : sortBy == 'desc'}"></i> Sort</li>
+              </ul>
             </div>
-            <div class="media-action-area" v-if="mediaActionArea">
-               <input type="file" @change="onFileChange($event)">
 
-               <div class="file-errors">
-                 <p v-for="error in fileErrors">{{ error[0] }}</p>
-               </div>
-            </div><!--end of media-action-area-->
-          </div>
+            <div class="manager-action-details" v-if="hasAnyAction">
+              <div class="folder-add-area" v-if="folderActionArea">
+                <input type="text" @keydown.enter.exact.prevent @keyup.enter.exact="saveOrUpdateFolder()" placeholder="Input Folder Name" v-model="folderNameText">
+
+                <template v-if="updateFolderId">
+                  <button class="btn" @click="updateFolder()">{{ folderSaveButtonName }}</button>
+                </template>
+                <template v-if="!updateFolderId">
+                  <button class="btn" @click="saveFolder()">{{ folderSaveButtonName }}</button>
+                </template>
+
+                <button class="btn" @click="canceFolderActionArea()">Cancel</button>
+              </div>
+              <div class="media-action-area" v-if="mediaActionArea">
+                 <input type="file" @change="onFileChange($event)">
+
+                 <div class="file-errors">
+                   <p v-for="error in fileErrors">{{ error[0] }}</p>
+                 </div>
+              </div><!--end of media-action-area-->
+            </div>
 
 
-          <div class="directory-box">
+            <div class="directory-box">
 
-            <template v-if="directories">
-              <div class="directory-single"  v-for="directory in directories.data" >
-                  <div class="card border-success mb-3">
-                    <div class="card-header">{{ directory.name }}
+              <template v-if="directories">
+                <div class="directory-single"  v-for="directory in directories.data" >
+                    <div class="card border-success mb-3">
+                      <div class="card-header">{{ directory.name }}
 
-                        <b-dropdown split
-                                    split-variant="outline-success"
-                                    variant="success"
-                                    text="Action"
-                                    class="m-2">
-                          <b-dropdown-item href="#" @click.prevent="openDirectory(directory.id)">Open</b-dropdown-item>
-                          <b-dropdown-item href="#" @click.prevent="copyFolder(directory.id)">Copy</b-dropdown-item>
-                          <b-dropdown-item href="#" @click.prevent="cutFolder(directory.id)">Cut</b-dropdown-item>
-                          <b-dropdown-item href="#" @click.prevent="deleteFolder(directory.id)">Delete</b-dropdown-item>
-                          <b-dropdown-item href="#" @click.prevent="renameFolder(directory.id, directory.name)">Rename</b-dropdown-item>
-                        </b-dropdown>
+                          <b-dropdown 
+                                      size="sm"
+                                      variant="outline-success"
+                                      text=""
+                                      class="float-right">
+                            <b-dropdown-item href="#" @click.prevent="openDirectory(directory.id)">Open</b-dropdown-item>
+                            <b-dropdown-item href="#" @click.prevent="copyFolder(directory.id)">Copy</b-dropdown-item>
+                            <b-dropdown-item href="#" @click.prevent="cutFolder(directory.id)">Cut</b-dropdown-item>
+                            <b-dropdown-item href="#" @click.prevent="deleteFolder(directory.id)">Delete</b-dropdown-item>
+                            <b-dropdown-item href="#" @click.prevent="renameFolder(directory.id, directory.name)">Rename</b-dropdown-item>
+                          </b-dropdown>
 
+                      </div>
+                      <div class="card-body text-success" @click.prevent="openDirectory(directory.id)">
+                        <h5 class="card-title">{{ directory.name }}</h5>
+                        <p class="card-text"></p>
+                      </div>
                     </div>
-                    <div class="card-body text-success" @click.prevent="openDirectory(directory.id)">
-                      <h5 class="card-title">{{ directory.name }}</h5>
-                      <p class="card-text"></p>
+                </div><!--end of directory-single-->
+
+              </template>  
+
+              <template v-if="medias">    
+                <div class="directory-single"  v-for="media in medias" >
+                    <div class="card border-success mb-3">
+                      <div class="card-header">{{ media.name }}
+
+                          <b-dropdown size="sm"
+                                      variant="outline-success"
+                                      text=""
+                                      class="float-right">
+                            <b-dropdown-item :href="media.media_src" download>Download</b-dropdown-item>
+                            <b-dropdown-item href="#" @click.prevent="copyMedia(media.id)">Copy</b-dropdown-item>
+                            <b-dropdown-item href="#" @click.prevent="cutMedia(media.id)">Cut</b-dropdown-item>
+                            <b-dropdown-item href="#" @click.prevent="deleteMedia(media.id)">Delete</b-dropdown-item>
+                            <b-dropdown-item href="#" @click.prevent="renameMedia(media.id, media.name)">Rename</b-dropdown-item>
+                          </b-dropdown>
+
+                      </div>
+                      <div class="card-body text-success" @click.prevent="openMedia(media)">
+                        <h5 class="card-title">
+                          <img v-if="media.type == 'image'" :src="media.media_src" width="200">
+                          <h2 class="media-extention-show" v-if="media.type == 'other'">{{media.ext}}</h2>
+                        </h5>
+                        <p class="card-text"></p>
+                      </div>
                     </div>
-                  </div>
-              </div><!--end of directory-single-->
+                </div><!--end of directory-single-->
 
-            </template>  
+              </template>   
 
-            <template v-if="medias">    
-              <div class="directory-single"  v-for="media in medias" >
-                  <div class="card border-success mb-3">
-                    <div class="card-header">{{ media.name }}
-
-                        <b-dropdown split
-                                    split-variant="outline-success"
-                                    variant="success"
-                                    text="Action"
-                                    class="m-2">
-                          <b-dropdown-item :href="media.media_src" download>Download</b-dropdown-item>
-                          <b-dropdown-item href="#" @click.prevent="copyMedia(media.id)">Copy</b-dropdown-item>
-                          <b-dropdown-item href="#" @click.prevent="cutMedia(media.id)">Cut</b-dropdown-item>
-                          <b-dropdown-item href="#" @click.prevent="deleteMedia(media.id)">Delete</b-dropdown-item>
-                          <b-dropdown-item href="#" @click.prevent="renameMedia(media.id, media.name)">Rename</b-dropdown-item>
-                        </b-dropdown>
-
-                    </div>
-                    <div class="card-body text-success" @click.prevent="openMedia(media.id)">
-                      <h5 class="card-title"><img :src="media.media_src" width="200"></h5>
-                      <p class="card-text"></p>
-                    </div>
-                  </div>
-              </div><!--end of directory-single-->
-
-            </template>   
-
-            <template v-if="directories">
-              <h2 v-if="!directories.data.length" class="nofile-message">NO FILE FOUND</h2>
-            </template>
-          </div><!--end of directory-box-->
-        </div><!--end of directory-area-->
-      </div>
-  </div>
+              <template v-if="!hasAnyData">
+                <h2 class="nofile-message">NO FILE FOUND</h2>
+              </template>
+            </div><!--end of directory-box-->
+          </div><!--end of directory-area-->
+        </div>
+    </div>
+  </div>  
 </template>
 <script>
   import { EventBus } from '@/plugins/global'
@@ -121,6 +125,8 @@
         folderActionArea : false,
         folderNameText : '',
         updateFolderId : null,
+
+        sortBy : 'desc',
 
         medias : null,
 
@@ -146,6 +152,10 @@
         } else {
           this.saveFolder();
         }
+      },
+      makeSort(){
+        this.sortBy = this.sortBy == 'desc' ? 'asc' : 'desc';
+        this.reloadDirectory();
       },
       saveFile(){
             var self = this;
@@ -175,7 +185,7 @@
         var self = this;
         self.medias = null;
         self.loading = true;
-        this.$axios.get('/get-directories').then(( response ) => {
+        this.$axios.get('/get-directories?sort=' + self.sortBy).then(( response ) => {
           self.directories = response.data;
           self.currentDirectory = null;
           self.loading = false;
@@ -185,11 +195,14 @@
           self.root = true;
         });
       },
+      openMedia(media){
+        
+      },
       openDirectory(id){
         // this is for open directory
         var self = this;
         self.loading = true;
-        this.$axios.get('/open-directory/' + id).then(( response ) => {
+        this.$axios.get('/open-directory/' + id + '?sort=' + self.sortBy).then(( response ) => {
           self.directories = response.data;
           self.medias = response.data.medias;
           self.currentDirectory = response.data.current_directory;
@@ -406,6 +419,24 @@
     computed : {
       folderSaveButtonName(){
         return this.updateFolderId ? 'Update' : 'Save';
+      },
+      hasAnyData(){
+        if(this.directories && this.directories.data.length){
+          return true;
+        }
+        if(this.medias && this.medias.length){
+          return true;
+        }
+        return false;
+      },
+      hasAnyAction(){
+        if(this.mediaActionArea){
+          return true;
+        }
+        if(this.folderActionArea){
+          return true;
+        }
+        return false;
       }
     }
   }

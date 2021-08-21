@@ -1,10 +1,10 @@
 <template>
   <div>
-    <b-button v-b-toggle.sidebar-backdrop>Tree Menu</b-button>
+    <!-- <b-button v-b-toggle.sidebar-backdrop>Tree Menu</b-button> -->
+    <button @click.prevent="toggleVisiblity()">MENU</button>
     <b-sidebar id="sidebar-backdrop"
       title="Menu"
-      :backdrop-variant="variant"
-      backdrop
+      :visible="visiblity"
       shadow
       >
       <div class="px-3 py-2">
@@ -18,7 +18,7 @@
   export default {
     data(){
       return {
-        visiblity : true,
+        visiblity : false,
       }
     },
     methods : {
@@ -28,9 +28,9 @@
     },
     mounted(){
       var self = this;
-      // EventBus.$on('hideSidebar', () => {
-      //   self.visiblity = false;
-      // })
+      EventBus.$on('hideSidebar', () => {
+        self.visiblity = false;
+      })
     }
   }
 </script>
