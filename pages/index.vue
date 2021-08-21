@@ -2,11 +2,11 @@
   <div class="container">
 
       <!--NESTED TOGGLE TREE MENU-->
-      <tree-menu></tree-menu>
+      <sidebar-toggle></sidebar-toggle>
 
 
       <div class="row">
-        <b-button v-b-toggle.sidebar-backdrop>Tree Menu</b-button>
+        
         <div class="directory-area">
           <h3>All directories</h3>
           <div class="manager-action-key"  >
@@ -16,6 +16,7 @@
               <li @click="openOrCloseFolderActionArea()"><i class="icon-plus"></i><i class="icon-folder-close-alt"></i> Folder</li>
               <li @click="openOrCloseMediaActionArea()"><i class="icon-plus"></i><i class="icon-picture"></i> Media</li>
               <li @click="reloadDirectory()"><i style="font-size:40px;" class="icon-refresh"></i> Reload</li>
+              <li @click="pasteFolder()"><i style="font-size:40px;" class="icon-paste"></i> Paste</li>
               <li><i class="icon-plus"></i> Sort</li>
             </ul>
           </div>
@@ -55,6 +56,9 @@
                                     variant="success"
                                     text="Action"
                                     class="m-2">
+                          <b-dropdown-item href="#" @click.prevent="openDirectory(directory.id)">Open</b-dropdown-item>
+                          <b-dropdown-item href="#" @click.prevent="copyFolder(directory.id)">Copy</b-dropdown-item>
+                          <b-dropdown-item href="#" @click.prevent="cutFolder(directory.id)">Cut</b-dropdown-item>
                           <b-dropdown-item href="#" @click.prevent="deleteFolder(directory.id)">Delete</b-dropdown-item>
                           <b-dropdown-item href="#" @click.prevent="renameFolder(directory.id, directory.name)">Rename</b-dropdown-item>
                         </b-dropdown>
@@ -103,6 +107,7 @@
   </div>
 </template>
 <script>
+  import { EventBus } from '@/plugins/global'
   export default {
     middleware: 'auth',
     data(){
@@ -208,6 +213,8 @@
       canceFolderActionArea(){
         this.closeAndResetFolderActionArea();
       },
+      copyFolder(id){},
+      cutFolder(id){},
       saveFolder(){
         var self = this;
         this.$axios.post('/save-folder', {
@@ -311,6 +318,10 @@
     },
     mounted(){
       this.fetchRootData();
+
+      EventBus.$on('selectTree', (directoryId) => {
+        this.openDirectory(directoryId);
+      });
 
       
     },

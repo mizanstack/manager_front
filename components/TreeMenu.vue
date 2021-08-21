@@ -1,17 +1,34 @@
 <template>
-  <div>
-    <b-sidebar id="sidebar-backdrop"
-      title="Sidebar with backdrop"
-      :backdrop-variant="variant"
-      backdrop
-      shadow>
-      <div class="px-3 py-2">
-        <p>
-          Cras mattis consectetur purus sit amet fermentum. Cras justo odio, dapibus ac facilisis
-          in, egestas eget quam. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
-        </p>
-        <b-img src="https://picsum.photos/500/500/?image=54" fluid thumbnail></b-img>
-      </div>
-    </b-sidebar>
-  </div>
+  <div class="tree-manage-area">
+    <div class="tree" v-if="treeMenu">
+        <tree :menuNode="treeMenu.data"></tree>
+    </div>
+  </div><!--tree manage area-->
 </template>
+<script>
+  export default {
+    data(){
+      return {
+        treeMenu : null,
+        loading : false,
+      }
+    },
+    methods : {
+      fetchTreeMenu(){
+        var self = this;
+        self.loading = true;
+        this.$axios.get('/nested-directories').then(( response ) => {
+          self.treeMenu = response.data;
+          self.loading = false;
+        }).catch((error) => {
+          self.loading = false;
+        });
+      },
+    },
+    mounted(){
+      this.fetchTreeMenu();
+    },
+    computed : {
+    }
+  }
+</script>

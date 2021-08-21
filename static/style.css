@@ -129,6 +129,11 @@ p.help-info span{
     background: #fff1f1;
 }
 /** TREE **/
+
+.tree-manage-area {}
+.tree-manage-area i{color:#28a745;}
+.tree-manage-area li{}
+
 .tree {
   position: relative;
   background: white;
@@ -141,11 +146,12 @@ p.help-info span{
   color: #212529;
 }
 .tree span {
-  font-size: 13px;
+  /*   font-size: 13px;
   font-style: italic;
   letter-spacing: 0.4px;
-  color: #a8a8a8;
-}
+  color: #a8a8a8; */
+  cursor: pointer;
+  }
 .tree .fa-folder-open,
 .tree .fa-folder {
   color: #007bff;
