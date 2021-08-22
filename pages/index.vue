@@ -36,11 +36,16 @@
                 <button class="btn" @click="canceFolderActionArea()">Cancel</button>
               </div>
               <div class="media-action-area" v-if="mediaActionArea">
-                 <input type="file" @change="onFileChange($event)">
+                <!-- FILE UPLOAD AREA-->
+                 <input type="file" id="file_upload_field" @change="onFileChange($event)" multiple>
 
-                 <div class="file-errors">
-                   <p v-for="error in fileErrors">{{ error[0] }}</p>
+                 <div class="upload-progress" v-if="fileErrors.length">
+                   <div class="upload-name-single" v-for="fileInfo in fileErrors">{{ fileInfo.name }} {{ fileInfo.status }} {{ fileInfo.errors }}</div>
                  </div>
+
+                 <!-- <div class="file-errors">
+                   <p v-for="error in fileErrors">{{ error[0] }}</p>
+                 </div> -->
               </div><!--end of media-action-area-->
             </div>
 
@@ -131,9 +136,10 @@
         medias : null,
 
         mediaActionArea : false,
-        attachment : null,
         fileErrors : [],
 
+        uploadFiles : null,
+        uploadFileQueue : 0,
 
         copyId : null,
         cutId : null,
@@ -143,8 +149,23 @@
     },
     methods : {
       onFileChange(event){
-          this.attachment = event.target.files[0];
-          this.saveFile();
+          this.uploadFiles = null;
+          this.uploadFiles = event.target.files;
+          this.fileErrors = [];
+          this.prepareFileError();
+          this.queueUpload();
+      },
+      prepareFileError(){
+        for(let i=0; i < this.uploadFiles.length; i++){
+          this.fileErrors.push({ name : this.uploadFiles[i].name, status : '', errors : '' });
+        }
+      },
+      setFileError(index, status, errorsArray = []){
+        this.fileErrors[index].status = status;
+        this.fileErrors[index].errors = errorsArray.join(', ');
+      },
+      queueUpload(){
+        this.saveFile(this.uploadFiles[this.uploadFileQueue]);
       },
       saveOrUpdateFolder(){
         if(this.updateFolderId){
@@ -157,18 +178,54 @@
         this.sortBy = this.sortBy == 'desc' ? 'asc' : 'desc';
         this.reloadDirectory();
       },
-      saveFile(){
+      saveFile(targetFile){
+
+
             var self = this;
+
+            if(self.uploadFiles.length <= self.uploadFileQueue){
+              self.makeToast('success', 'Done', 'Upload Operation Complete');
+              self.resetUploadSystem();
+              return;
+            }
+
+            self.setFileError(self.uploadFileQueue, 'uploading...');
+
+            // self.uploadFiles[self.uploadFileQueue].queueStatus = 'uploading...';
+            
             var prepareData = new FormData();
-            prepareData.append('attachment', this.attachment);
+
+            prepareData.append('attachment', targetFile);
             prepareData.append('directory_id', this.currentDirectory ? this.currentDirectory.id : '');
+
             self.$axios.post('upload-files', prepareData).
             then((response) => {
               self.reloadDirectory();
-              self.makeToast('success', 'Done', 'Succesfully Uploaded');
+              // self.makeToast('success', 'Done', 'Succesfully Uploaded');
+              // self.uploadFiles[self.uploadFileQueue].queueStatus = 'uploaded';
+
+              self.setFileError(self.uploadFileQueue, 'uploaded');
+              self.uploadFileQueue = self.uploadFileQueue + 1;
+              setTimeout(()=> {
+                this.queueUpload();
+              }, 1500);
+              
             }).catch((err) => {
-                self.fileErrors = err.response.data.errors;
+                // self.fileErrors = err.response.data.errors;
+
+                self.setFileError(self.uploadFileQueue, 'error..', err.response.data.errors.attachment);
+                // self.uploadFiles[self.uploadFileQueue].queueStatus = err.response.data.errors.attachment[0];
+                self.uploadFileQueue = self.uploadFileQueue + 1;
+                setTimeout(()=> {
+                  this.queueUpload();
+                }, 1500);
+                
             });
+        },
+        resetUploadSystem(){
+          // this.uploadFiles = null;
+          this.uploadFileQueue = 0;
+          document.getElementById('file_upload_field').value='';
         },
         downloadMedia(uri, name){
           var link = document.createElement("a");
@@ -387,6 +444,7 @@
         this.closeAndResetMediaActionArea();
         this.resetAllData();
         this.fetchRootData();
+        this.fileErrors = [];
 
       },
       resetAllData(){
