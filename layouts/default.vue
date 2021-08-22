@@ -70,3 +70,5 @@
         <!-- <script src="js/scripts.js"></script> -->
 	</div>
 </template>
+<script>
+</script>

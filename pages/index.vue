@@ -7,20 +7,33 @@
         <div class="row">
           
           <div class="directory-area">
-            <h3>All directories</h3>
-            <div class="manager-action-key"  >
+            <h3>FILE MANAGER SYSTEM</h3>
+            <div class="manager-action-key">
               <ul class="manager-action-icons" :class="{'is_loading' : loading}">
-                <li @click="goHome()"><i style="font-size:40px;" class="icon-home"></i> Home</li>
-                <li v-if="root == false" @click.prevent="backDirectory()"><i style="font-size:40px;" class="icon-arrow-left"></i> Back</li>
-                <li :class="{'disable-icon' : !forwardDirectoryId}"  @click.prevent="forwardDirectory()"><i style="font-size:40px;" class="icon-arrow-right"></i> Forward</li>
-                <li @click="openOrCloseFolderActionArea()"><i class="icon-plus"></i><i class="icon-folder-close-alt"></i> Folder</li>
-                <li :class="{'disable-icon' : !currentDirectory}" @click="openOrCloseMediaActionArea()" ><i class="icon-plus"></i><i class="icon-picture"></i> Media</li>
-                <li @click="reloadDirectory()"><i style="font-size:40px;" class="icon-refresh"></i> Reload</li>
-                <li class="disable-icon" @click="pasteOperation()" :class="{'paste-active' : hasPaste}"><i style="font-size:40px;" class="icon-paste"></i> Paste</li>
-                <li @click="makeSort()"><i style="font-size:40px;" :class="{'icon-sort-by-attributes' : sortBy == 'asc', 'icon-sort-by-attributes-alt' : sortBy == 'desc'}"></i> Sort</li>
+
+                <li @click="goHome()" class="bigger-action-icon"><i class="icon-home"></i> Home</li>
+
+                <li class="bigger-action-icon" v-if="root == false" @click.prevent="backDirectory()"><i class="icon-arrow-left"></i> Back</li>
+
+                <li class="bigger-action-icon" :class="{'disable-icon' : !forwardDirectoryId}"  @click.prevent="forwardDirectory()"><i class="icon-arrow-right"></i> Forward</li>
+
+                <li :class="{'disable-icon' : !hasNewFolder}" @click="openOrCloseFolderActionArea()"><i class="icon-plus"></i><i class="icon-folder-close-alt"></i> Folder</li>
+
+                <li :class="{'disable-icon' : !hasNewMedia}" @click="openOrCloseMediaActionArea()" ><i class="icon-plus"></i><i class="icon-picture"></i> Media</li>
+
+                <li class="bigger-action-icon" @click="reloadDirectory()"><i class="icon-refresh"></i> Reload</li>
+
+                <li class="disable-icon bigger-action-icon" @click="pasteOperation()" :class="{'paste-active' : hasPaste}"><i class="icon-paste"></i> Paste</li>
+
+                <li class="bigger-action-icon" @click="makeSort()"><i :class="{'icon-sort-by-attributes' : sortBy == 'asc', 'icon-sort-by-attributes-alt' : sortBy == 'desc'}"></i> Sort</li>
               </ul>
             </div>
 
+
+            <div class="current-directory-meta">
+                <p v-if="currentDirectory">Current Directory: {{ currentDirectory.name }}</p>
+                <p v-if="searchMode">Search Result: {{ searchKeyword }} <i class="icon-remove remove-search-icon" @click="reloadDirectory()"></i></p>
+            </div>
 
             <div class="manager-action-details" v-if="hasAnyAction">
               <div class="folder-add-area" v-if="folderActionArea">
@@ -51,68 +64,88 @@
 
 
             <div class="directory-box">
+              <div class="row">
+                <template v-if="directories">
+                  <div class="directory-single col-sm-2 col-md-3 col-lg-3"  v-for="directory in directories.data" >
+                      <div class="card border-success mb-3">
+                        <div class="card-header">{{ directory.name }}
 
-              <template v-if="directories">
-                <div class="directory-single"  v-for="directory in directories.data" >
-                    <div class="card border-success mb-3">
-                      <div class="card-header">{{ directory.name }}
+                            <b-dropdown 
+                                        size="sm"
+                                        variant="outline-success"
+                                        text=""
+                                        class="float-right">
+                              <b-dropdown-item href="#" @click.prevent="openDirectory(directory.id)">Open</b-dropdown-item>
+                              <b-dropdown-item href="#" @click.prevent="copyFolder(directory.id)">Copy</b-dropdown-item>
+                              <b-dropdown-item href="#" @click.prevent="cutFolder(directory.id)">Cut</b-dropdown-item>
+                              <b-dropdown-item href="#" @click.prevent="deleteFolder(directory.id)">Delete</b-dropdown-item>
+                              <b-dropdown-item href="#" @click.prevent="renameFolder(directory.id, directory.name)">Rename</b-dropdown-item>
+                            </b-dropdown>
 
-                          <b-dropdown 
-                                      size="sm"
-                                      variant="outline-success"
-                                      text=""
-                                      class="float-right">
-                            <b-dropdown-item href="#" @click.prevent="openDirectory(directory.id)">Open</b-dropdown-item>
-                            <b-dropdown-item href="#" @click.prevent="copyFolder(directory.id)">Copy</b-dropdown-item>
-                            <b-dropdown-item href="#" @click.prevent="cutFolder(directory.id)">Cut</b-dropdown-item>
-                            <b-dropdown-item href="#" @click.prevent="deleteFolder(directory.id)">Delete</b-dropdown-item>
-                            <b-dropdown-item href="#" @click.prevent="renameFolder(directory.id, directory.name)">Rename</b-dropdown-item>
-                          </b-dropdown>
-
+                        </div>
+                        <div class="card-body text-success" @click.prevent="openDirectory(directory.id)">
+                          <h5 class="card-title">{{ directory.name }}</h5>
+                          <p class="card-text"></p>
+                        </div>
                       </div>
-                      <div class="card-body text-success" @click.prevent="openDirectory(directory.id)">
-                        <h5 class="card-title">{{ directory.name }}</h5>
-                        <p class="card-text"></p>
+                  </div><!--end of directory-single-->
+
+                </template>  
+
+                <template v-if="medias">    
+                  <div class="directory-single col-sm-2 col-md-3 col-lg-3" v-for="media in medias" >
+                      <div class="card border-success mb-3">
+                        <div class="card-header">{{ media.name }}
+
+                            <b-dropdown size="sm"
+                                        variant="outline-success"
+                                        text=""
+                                        class="float-right">
+                              <b-dropdown-item :href="media.media_src" @click.prevent="downloadMedia(media.media_src, media.attachment)">Download</b-dropdown-item>
+                              <b-dropdown-item href="#" @click.prevent="copyMedia(media.id)">Copy</b-dropdown-item>
+                              <b-dropdown-item href="#" @click.prevent="cutMedia(media.id)">Cut</b-dropdown-item>
+                              <b-dropdown-item href="#" @click.prevent="deleteMedia(media.id)">Delete</b-dropdown-item>
+                            </b-dropdown>
+
+                        </div>
+                        <div class="card-body text-success" @click.prevent="openMedia(media)">
+                          <h5 class="card-title">
+                            <img v-if="media.type == 'image'" :src="media.media_src" width="200">
+                            <h2 class="media-extention-show" v-if="media.type == 'other'">{{media.ext}}</h2>
+                          </h5>
+                          <p class="card-text"></p>
+                        </div>
                       </div>
-                    </div>
-                </div><!--end of directory-single-->
+                  </div><!--end of directory-single-->
 
-              </template>  
-
-              <template v-if="medias">    
-                <div class="directory-single"  v-for="media in medias" >
-                    <div class="card border-success mb-3">
-                      <div class="card-header">{{ media.name }}
-
-                          <b-dropdown size="sm"
-                                      variant="outline-success"
-                                      text=""
-                                      class="float-right">
-                            <b-dropdown-item :href="media.media_src" download>Download</b-dropdown-item>
-                            <b-dropdown-item href="#" @click.prevent="copyMedia(media.id)">Copy</b-dropdown-item>
-                            <b-dropdown-item href="#" @click.prevent="cutMedia(media.id)">Cut</b-dropdown-item>
-                            <b-dropdown-item href="#" @click.prevent="deleteMedia(media.id)">Delete</b-dropdown-item>
-                          </b-dropdown>
-
-                      </div>
-                      <div class="card-body text-success" @click.prevent="openMedia(media)">
-                        <h5 class="card-title">
-                          <img v-if="media.type == 'image'" :src="media.media_src" width="200">
-                          <h2 class="media-extention-show" v-if="media.type == 'other'">{{media.ext}}</h2>
-                        </h5>
-                        <p class="card-text"></p>
-                      </div>
-                    </div>
-                </div><!--end of directory-single-->
-
-              </template>   
-
-              <template v-if="!hasAnyData">
-                <h2 class="nofile-message">NO FILE FOUND</h2>
-              </template>
+                </template>   
+              </div><!--end of row-->
+              
             </div><!--end of directory-box-->
           </div><!--end of directory-area-->
+
+          <template v-if="directories">
+            <div class="pagination-wrapper">
+              <pagination v-if="directories.meta" :pageData="directories.meta"></pagination> 
+            </div>
+          </template>
+
+          <template v-if="!hasAnyData">
+            <h2 class="nofile-message">NO FILE FOUND</h2>
+          </template>
+
         </div>
+
+        <div class="row">
+          <div class="help-info">
+            <template v-if="hasExtraInfo">
+              <p>* This is a root drive. You can't upload file here. You can create folder</p>
+              <p>* You can create folder into any drive</p>
+            </template>
+          </div>
+        </div>
+
+
     </div>
   </div>  
 </template>
@@ -147,11 +180,40 @@
 
         copyOrCutId : null,
 
+        currentPage : 1,
+        searchKeyword : '',
+        searchMode : false,
+
         
       }
     },
     methods : {
+      searchFetchData(page=1){
+        var self = this;
+        self.medias = null;
+        self.loading = true;
+        this.$axios.get('/get-search-data?sort=' + self.sortBy + '&page=' + page + '&search=' + self.searchKeyword).then(( response ) => {
+          self.directories = response.data;
+          self.currentDirectory = null;
+          self.loading = false;
+          self.root = true;
+        }).catch((error) => {
+          self.loading = false;
+          self.root = true;
+        });
+      },
+      resetSearch(){
+        this.searchKeyword = '';
+        this.searchMode = false;
+        EventBus.$emit('reset-search');
+      },
+      pageClicked(page){
+          this.searchFetchData(page);
+      },
+
+
       copyMedia(id){
+
         this.resetCopyMoveOperation();
         this.copyMoveOperationName = 'media';
         this.copyMoveOperationType = 'copy';
@@ -287,10 +349,11 @@
         },
         downloadMedia(uri, name){
           var link = document.createElement("a");
-          // If you don't know the name or want to use
-          // the webserver default set name = ''
-          link.setAttribute('download', 'download');
+          link.setAttribute('target', '_blank');
+          link.setAttribute('download', name);
           link.href = uri;
+          // console.log(link);
+          // return;
           document.body.appendChild(link);
           link.click();
           link.remove();
@@ -316,6 +379,7 @@
       openDirectory(id){
         // this is for open directory
         var self = this;
+        self.resetSearch();
         self.loading = true;
         this.$axios.get('/open-directory/' + id + '?sort=' + self.sortBy).then(( response ) => {
           self.directories = response.data;
@@ -329,6 +393,7 @@
         });
       },
       reloadDirectory(){
+        this.resetSearch();
         if(this.currentDirectory){
           this.openDirectory(this.currentDirectory.id);
         } else{
@@ -337,6 +402,7 @@
         EventBus.$emit('reloadTreeMenu');
       },
       backDirectory(){
+        this.resetSearch();
         this.forwardDirectoryId = this.currentDirectory.id;
         if(this.currentDirectory.parent_id){
           // has back
@@ -348,6 +414,7 @@
         this.closeAndResetFolderActionArea();
       },
       forwardDirectory(){
+        this.resetSearch();
         if(!this.forwardDirectoryId){
           return;
         }
@@ -355,6 +422,7 @@
         this.forwardDirectoryId = null;
       },
       openOrCloseFolderActionArea(){
+        if(!this.hasNewFolder) return;
         this.folderActionArea = !this.folderActionArea;
         this.mediaActionArea = false;
       },
@@ -438,7 +506,7 @@
         this.folderNameText = folderName;
       },
       updateFolder(){
-
+        var self = this;
         if(self.folderNameText == ''){
           self.makeToast('warning', 'Error', 'Folder name empty!');
           return;
@@ -448,8 +516,7 @@
           self.makeToast('warning', 'Error', 'You can\'t update the folder');
           return;
         }
-        var self = this;
-        this.$axios.post('/update-folder/' + this.updateFolderId, {
+        self.$axios.post('/update-folder/' + self.updateFolderId, {
           name : self.folderNameText,
         }).then(( response ) => {
           self.makeToast('success', 'Done', 'Folder name updated');
@@ -460,6 +527,7 @@
         });
       },
       goHome(){
+        this.resetSearch();
         this.closeAndResetFolderActionArea();
         this.closeAndResetMediaActionArea();
         this.resetAllData();
@@ -482,20 +550,26 @@
           variant: variant,
           solid: true
         })
-      }
+      },
+      
     },
     mounted(){
       this.fetchRootData();
 
       EventBus.$on('hit-search', (keyword)=> {
-        
+        this.searchMode = true;
+        this.searchKeyword = keyword;
+        this.searchFetchData();
       })
 
       EventBus.$on('selectTree', (directoryId) => {
+
         this.openDirectory(directoryId);
       });
 
-      
+      EventBus.$on('hit-pagination', (page) => {
+        this.pageClicked(page);
+      });
     },
     computed : {
       folderSaveButtonName(){
@@ -524,6 +598,27 @@
       },
       currentDirectoryId(){
         return this.currentDirectory ? this.currentDirectory.id : null;
+      },
+      hasNewFolder(){
+        if(this.searchMode){
+          return false;
+        }
+        return true;
+      },
+      hasNewMedia(){
+        if(this.currentDirectory){
+          return true;
+        }
+        if(this.searchMode){
+          return false;
+        }
+        return false;
+      },
+      hasExtraInfo(){
+        if(!this.currentDirectoryId && !this.searchMode){
+          return true;
+        }
+        return false;
       }
     }
   }

@@ -13,7 +13,7 @@
 				keyword : ''
 			}
 		},
-		method : {
+		methods : {
 			hitSearch(){
 		        EventBus.$emit('hit-search', this.keyword);
 			}
