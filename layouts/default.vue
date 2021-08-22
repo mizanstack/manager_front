@@ -11,6 +11,8 @@
                 <b-nav-item to="/" href="#">Home</b-nav-item>
               </b-navbar-nav>
 
+              <search-bar-manager></search-bar-manager>
+
 
                 <b-navbar-nav class="ml-auto">
                   <template v-if="$auth.loggedIn">

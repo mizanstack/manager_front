@@ -22,6 +22,11 @@
               </ul>
             </div>
 
+
+            <div class="search-bar-area">
+              <input type="text" class="form-control">
+            </div>
+
             <div class="manager-action-details" v-if="hasAnyAction">
               <div class="folder-add-area" v-if="folderActionArea">
                 <input type="text" @keydown.enter.exact.prevent @keyup.enter.exact="saveOrUpdateFolder()" placeholder="Input Folder Name" v-model="folderNameText">
@@ -467,6 +472,10 @@
     },
     mounted(){
       this.fetchRootData();
+
+      EventBus.$on('hit-search', (keyword)=> {
+        
+      })
 
       EventBus.$on('selectTree', (directoryId) => {
         this.openDirectory(directoryId);
