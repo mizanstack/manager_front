@@ -4,8 +4,6 @@
     <div class="container">
 
         <!--NESTED TOGGLE TREE MENU-->
-        
-
         <div class="row">
           
           <div class="directory-area">
@@ -14,6 +12,7 @@
               <ul class="manager-action-icons" :class="{'is_loading' : loading}">
                 <li @click="goHome()"><i style="font-size:40px;" class="icon-home"></i> Home</li>
                 <li v-if="root == false" @click.prevent="backDirectory()"><i style="font-size:40px;" class="icon-arrow-left"></i> Back</li>
+                <li :class="{'disable-icon' : !forwardDirectoryId}"  @click.prevent="forwardDirectory()"><i style="font-size:40px;" class="icon-arrow-right"></i> Forward</li>
                 <li @click="openOrCloseFolderActionArea()"><i class="icon-plus"></i><i class="icon-folder-close-alt"></i> Folder</li>
                 <li :class="{'disable-icon' : !currentDirectory}" @click="openOrCloseMediaActionArea()" ><i class="icon-plus"></i><i class="icon-picture"></i> Media</li>
                 <li @click="reloadDirectory()"><i style="font-size:40px;" class="icon-refresh"></i> Reload</li>
@@ -130,6 +129,8 @@
         folderActionArea : false,
         folderNameText : '',
         updateFolderId : null,
+
+        forwardDirectoryId : null,
 
         sortBy : 'desc',
 
@@ -336,6 +337,7 @@
         EventBus.$emit('reloadTreeMenu');
       },
       backDirectory(){
+        this.forwardDirectoryId = this.currentDirectory.id;
         if(this.currentDirectory.parent_id){
           // has back
           this.openDirectory(this.currentDirectory.parent_id);
@@ -344,6 +346,13 @@
           this.fetchRootData();
         }
         this.closeAndResetFolderActionArea();
+      },
+      forwardDirectory(){
+        if(!this.forwardDirectoryId){
+          return;
+        }
+        this.openDirectory(this.forwardDirectoryId);
+        this.forwardDirectoryId = null;
       },
       openOrCloseFolderActionArea(){
         this.folderActionArea = !this.folderActionArea;
@@ -456,7 +465,6 @@
         this.resetAllData();
         this.fetchRootData();
         this.fileErrors = [];
-
       },
       resetAllData(){
         this.$data = {
