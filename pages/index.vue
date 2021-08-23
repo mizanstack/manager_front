@@ -535,14 +535,10 @@
         this.fileErrors = [];
       },
       resetAllData(){
-        this.$data = {
-          directories : null,
-          loading : false,
-          root : true,
-          currentDirectory : null,
-          folderActionArea : false,
-          folderNameText : '',
-        }
+          this.directories = null;
+          this.loading = false;
+          this.root = true;
+          this.currentDirectory = null;
       },
       makeToast(variant, title, body) {
         this.$bvToast.toast(body, {
